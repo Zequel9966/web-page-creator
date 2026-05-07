@@ -13,6 +13,7 @@ import { Route as TiendaRouteImport } from './routes/tienda'
 import { Route as SobreNosotrosRouteImport } from './routes/sobre-nosotros'
 import { Route as ServiciosRouteImport } from './routes/servicios'
 import { Route as ReservarRouteImport } from './routes/reservar'
+import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as IniciarSesionRouteImport } from './routes/iniciar-sesion'
 import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as IndexRouteImport } from './routes/index'
@@ -37,6 +38,11 @@ const ReservarRoute = ReservarRouteImport.update({
   path: '/reservar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegistroRoute = RegistroRouteImport.update({
+  id: '/registro',
+  path: '/registro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IniciarSesionRoute = IniciarSesionRouteImport.update({
   id: '/iniciar-sesion',
   path: '/iniciar-sesion',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contacto': typeof ContactoRoute
   '/iniciar-sesion': typeof IniciarSesionRoute
+  '/registro': typeof RegistroRoute
   '/reservar': typeof ReservarRoute
   '/servicios': typeof ServiciosRoute
   '/sobre-nosotros': typeof SobreNosotrosRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contacto': typeof ContactoRoute
   '/iniciar-sesion': typeof IniciarSesionRoute
+  '/registro': typeof RegistroRoute
   '/reservar': typeof ReservarRoute
   '/servicios': typeof ServiciosRoute
   '/sobre-nosotros': typeof SobreNosotrosRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/contacto': typeof ContactoRoute
   '/iniciar-sesion': typeof IniciarSesionRoute
+  '/registro': typeof RegistroRoute
   '/reservar': typeof ReservarRoute
   '/servicios': typeof ServiciosRoute
   '/sobre-nosotros': typeof SobreNosotrosRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/contacto'
     | '/iniciar-sesion'
+    | '/registro'
     | '/reservar'
     | '/servicios'
     | '/sobre-nosotros'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/contacto'
     | '/iniciar-sesion'
+    | '/registro'
     | '/reservar'
     | '/servicios'
     | '/sobre-nosotros'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/contacto'
     | '/iniciar-sesion'
+    | '/registro'
     | '/reservar'
     | '/servicios'
     | '/sobre-nosotros'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContactoRoute: typeof ContactoRoute
   IniciarSesionRoute: typeof IniciarSesionRoute
+  RegistroRoute: typeof RegistroRoute
   ReservarRoute: typeof ReservarRoute
   ServiciosRoute: typeof ServiciosRoute
   SobreNosotrosRoute: typeof SobreNosotrosRoute
@@ -151,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReservarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/registro': {
+      id: '/registro'
+      path: '/registro'
+      fullPath: '/registro'
+      preLoaderRoute: typeof RegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/iniciar-sesion': {
       id: '/iniciar-sesion'
       path: '/iniciar-sesion'
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContactoRoute: ContactoRoute,
   IniciarSesionRoute: IniciarSesionRoute,
+  RegistroRoute: RegistroRoute,
   ReservarRoute: ReservarRoute,
   ServiciosRoute: ServiciosRoute,
   SobreNosotrosRoute: SobreNosotrosRoute,

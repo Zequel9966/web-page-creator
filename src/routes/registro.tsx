@@ -10,18 +10,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { Recaptcha } from "@/components/site/Recaptcha";
 import { verifyRecaptcha } from "@/server/recaptcha.functions";
 
-export const Route = createFileRoute("/iniciar-sesion")({
+export const Route = createFileRoute("/registro")({
   head: () => ({
     meta: [
-      { title: "Iniciar sesión — PawSpa" },
-      { name: "description", content: "Accede a tu cuenta PawSpa." },
+      { title: "Crear cuenta — PawSpa" },
+      { name: "description", content: "Regístrate en PawSpa para reservar citas y comprar productos para tu mascota." },
     ],
   }),
-  component: LoginPage,
+  component: RegisterPage,
 });
 
-function LoginPage() {
+function RegisterPage() {
   const navigate = useNavigate();
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [captcha, setCaptcha] = useState<string | null>(null);
@@ -29,6 +31,10 @@ function LoginPage() {
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (password.length < 8) {
+      toast.error("La contraseña debe tener al menos 8 caracteres");
+      return;
+    }
     if (!captcha) {
       toast.error("Completa el captcha");
       return;
@@ -37,12 +43,19 @@ function LoginPage() {
     try {
       const v = await verifyRecaptcha({ data: { token: captcha } });
       if (!v.ok) throw new Error("Captcha inválido");
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: { full_name: fullName, phone },
+        },
+      });
       if (error) throw error;
-      toast.success("¡Bienvenido de vuelta!");
-      navigate({ to: "/" });
+      toast.success("¡Cuenta creada! Revisa tu correo para confirmar.");
+      navigate({ to: "/iniciar-sesion" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error al iniciar sesión");
+      toast.error(err instanceof Error ? err.message : "Error al registrarse");
     } finally {
       setLoading(false);
     }
@@ -55,27 +68,35 @@ function LoginPage() {
           <div className="size-14 mx-auto rounded-2xl bg-primary/10 grid place-items-center mb-3">
             <PawPrint className="size-7 text-primary" />
           </div>
-          <h1 className="font-display font-black text-3xl">Iniciar sesión</h1>
-          <p className="text-muted-foreground text-sm mt-1">Accede a tu cuenta PawSpa</p>
+          <h1 className="font-display font-black text-3xl">Crear cuenta</h1>
+          <p className="text-muted-foreground text-sm mt-1">Únete a la familia PawSpa</p>
         </div>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Correo electrónico</Label>
-            <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Label htmlFor="fullName">Nombre completo</Label>
+            <Input id="fullName" required value={fullName} onChange={(e) => setFullName(e.target.value)} maxLength={100} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
-            <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            <Label htmlFor="phone">Teléfono</Label>
+            <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={20} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Correo electrónico</Label>
+            <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Contraseña (mín. 8 caracteres)</Label>
+            <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} />
           </div>
           <Recaptcha onChange={setCaptcha} />
           <Button type="submit" className="w-full rounded-full" disabled={loading}>
-            {loading ? "Entrando..." : "Entrar"}
+            {loading ? "Creando..." : "Crear cuenta"}
           </Button>
         </form>
         <p className="text-sm text-center mt-6 text-muted-foreground">
-          ¿No tienes cuenta?{" "}
-          <Link to="/registro" className="text-primary font-semibold hover:underline">
-            Regístrate
+          ¿Ya tienes cuenta?{" "}
+          <Link to="/iniciar-sesion" className="text-primary font-semibold hover:underline">
+            Inicia sesión
           </Link>
         </p>
       </Card>
