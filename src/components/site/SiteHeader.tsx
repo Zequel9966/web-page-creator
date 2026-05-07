@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, X, PawPrint } from "lucide-react";
-import { useState } from "react";
+import { Menu, X, PawPrint, LogOut, User } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/pawspa-logo.png";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const links = [
   { to: "/", label: "Inicio" },
@@ -14,6 +16,20 @@ const links = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setEmail(session?.user?.email ?? null);
+    });
+    supabase.auth.getSession().then(({ data }) => setEmail(data.session?.user?.email ?? null));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Sesión cerrada");
+  };
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/60">
@@ -40,9 +56,25 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-3">
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/iniciar-sesion">Iniciar sesión</Link>
-          </Button>
+          {email ? (
+            <>
+              <span className="text-sm text-muted-foreground inline-flex items-center gap-1.5">
+                <User className="size-4" /> {email}
+              </span>
+              <Button variant="ghost" size="sm" onClick={logout}>
+                <LogOut className="size-4" /> Salir
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/iniciar-sesion">Iniciar sesión</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="rounded-full">
+                <Link to="/registro">Registrarse</Link>
+              </Button>
+            </>
+          )}
           <Button asChild size="sm" className="rounded-full shadow-soft">
             <Link to="/reservar">
               <PawPrint className="size-4" /> Reservar cita
@@ -75,9 +107,20 @@ export function SiteHeader() {
               </Link>
             ))}
             <div className="flex flex-col gap-2 pt-3 mt-2 border-t border-border">
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/iniciar-sesion" onClick={() => setOpen(false)}>Iniciar sesión</Link>
-              </Button>
+              {email ? (
+                <Button variant="outline" className="w-full" onClick={() => { setOpen(false); logout(); }}>
+                  Cerrar sesión
+                </Button>
+              ) : (
+                <>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/iniciar-sesion" onClick={() => setOpen(false)}>Iniciar sesión</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/registro" onClick={() => setOpen(false)}>Registrarse</Link>
+                  </Button>
+                </>
+              )}
               <Button asChild className="w-full rounded-full">
                 <Link to="/reservar" onClick={() => setOpen(false)}>Reservar cita</Link>
               </Button>
