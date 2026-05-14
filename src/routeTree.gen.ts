@@ -20,6 +20,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/app.dashboard'
+import { Route as AuthenticatedAppCitasRouteImport } from './routes/_authenticated/app.citas'
 
 const TiendaRoute = TiendaRouteImport.update({
   id: '/tienda',
@@ -76,6 +77,11 @@ const AuthenticatedAppDashboardRoute =
     path: '/dashboard',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppCitasRoute = AuthenticatedAppCitasRouteImport.update({
+  id: '/citas',
+  path: '/citas',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/sobre-nosotros': typeof SobreNosotrosRoute
   '/tienda': typeof TiendaRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/app/citas': typeof AuthenticatedAppCitasRoute
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
 }
 export interface FileRoutesByTo {
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/sobre-nosotros': typeof SobreNosotrosRoute
   '/tienda': typeof TiendaRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/app/citas': typeof AuthenticatedAppCitasRoute
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
 }
 export interface FileRoutesById {
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/sobre-nosotros': typeof SobreNosotrosRoute
   '/tienda': typeof TiendaRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/_authenticated/app/citas': typeof AuthenticatedAppCitasRoute
   '/_authenticated/app/dashboard': typeof AuthenticatedAppDashboardRoute
 }
 export interface FileRouteTypes {
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/sobre-nosotros'
     | '/tienda'
     | '/app'
+    | '/app/citas'
     | '/app/dashboard'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/sobre-nosotros'
     | '/tienda'
     | '/app'
+    | '/app/citas'
     | '/app/dashboard'
   id:
     | '__root__'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/sobre-nosotros'
     | '/tienda'
     | '/_authenticated/app'
+    | '/_authenticated/app/citas'
     | '/_authenticated/app/dashboard'
   fileRoutesById: FileRoutesById
 }
@@ -246,14 +258,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppDashboardRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/citas': {
+      id: '/_authenticated/app/citas'
+      path: '/citas'
+      fullPath: '/app/citas'
+      preLoaderRoute: typeof AuthenticatedAppCitasRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppCitasRoute: typeof AuthenticatedAppCitasRoute
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppCitasRoute: AuthenticatedAppCitasRoute,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
 }
 
