@@ -1,4 +1,4 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
 import { SiteHeader } from "@/components/site/SiteHeader";
@@ -69,13 +69,15 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
+  const path = useRouterState({ select: (r) => r.location.pathname });
+  const isApp = path.startsWith("/app");
   return (
     <>
-      <SiteHeader />
+      {!isApp && <SiteHeader />}
       <main>
         <Outlet />
       </main>
-      <SiteFooter />
+      {!isApp && <SiteFooter />}
       <Toaster richColors position="top-center" />
     </>
   );

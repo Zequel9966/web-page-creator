@@ -58,9 +58,11 @@ export function SiteHeader() {
         <div className="hidden lg:flex items-center gap-3">
           {email ? (
             <>
-              <span className="text-sm text-muted-foreground inline-flex items-center gap-1.5">
-                <User className="size-4" /> {email}
-              </span>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/app/mi-cuenta" className="inline-flex items-center gap-1.5">
+                  <User className="size-4" /> Mi panel
+                </Link>
+              </Button>
               <Button variant="ghost" size="sm" onClick={logout}>
                 <LogOut className="size-4" /> Salir
               </Button>
