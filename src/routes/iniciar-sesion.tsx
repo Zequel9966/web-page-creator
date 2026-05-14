@@ -37,10 +37,16 @@ function LoginPage() {
     try {
       const v = await verifyRecaptcha({ data: { token: captcha } });
       if (!v.ok) throw new Error("Captcha inválido");
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       toast.success("¡Bienvenido de vuelta!");
-      navigate({ to: "/" });
+      let dest = "/app/mi-cuenta";
+      if (data.user) {
+        const { data: r } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id).limit(1).maybeSingle();
+        const role = r?.role as string | undefined;
+        if (role && role !== "cliente") dest = "/app/dashboard";
+      }
+      navigate({ to: dest });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al iniciar sesión");
     } finally {
