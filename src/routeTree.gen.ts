@@ -16,7 +16,9 @@ import { Route as ReservarRouteImport } from './routes/reservar'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as IniciarSesionRouteImport } from './routes/iniciar-sesion'
 import { Route as ContactoRouteImport } from './routes/contacto'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 
 const TiendaRoute = TiendaRouteImport.update({
   id: '/tienda',
@@ -53,10 +55,19 @@ const ContactoRoute = ContactoRouteImport.update({
   path: '/contacto',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -68,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/servicios': typeof ServiciosRoute
   '/sobre-nosotros': typeof SobreNosotrosRoute
   '/tienda': typeof TiendaRoute
+  '/app': typeof AuthenticatedAppRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,10 +90,12 @@ export interface FileRoutesByTo {
   '/servicios': typeof ServiciosRoute
   '/sobre-nosotros': typeof SobreNosotrosRoute
   '/tienda': typeof TiendaRoute
+  '/app': typeof AuthenticatedAppRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/contacto': typeof ContactoRoute
   '/iniciar-sesion': typeof IniciarSesionRoute
   '/registro': typeof RegistroRoute
@@ -89,6 +103,7 @@ export interface FileRoutesById {
   '/servicios': typeof ServiciosRoute
   '/sobre-nosotros': typeof SobreNosotrosRoute
   '/tienda': typeof TiendaRoute
+  '/_authenticated/app': typeof AuthenticatedAppRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +116,7 @@ export interface FileRouteTypes {
     | '/servicios'
     | '/sobre-nosotros'
     | '/tienda'
+    | '/app'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,9 +127,11 @@ export interface FileRouteTypes {
     | '/servicios'
     | '/sobre-nosotros'
     | '/tienda'
+    | '/app'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/contacto'
     | '/iniciar-sesion'
     | '/registro'
@@ -121,10 +139,12 @@ export interface FileRouteTypes {
     | '/servicios'
     | '/sobre-nosotros'
     | '/tienda'
+    | '/_authenticated/app'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   ContactoRoute: typeof ContactoRoute
   IniciarSesionRoute: typeof IniciarSesionRoute
   RegistroRoute: typeof RegistroRoute
@@ -185,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -192,11 +219,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedAppRoute: typeof AuthenticatedAppRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAppRoute: AuthenticatedAppRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   ContactoRoute: ContactoRoute,
   IniciarSesionRoute: IniciarSesionRoute,
   RegistroRoute: RegistroRoute,
@@ -208,3 +255,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
